@@ -111,9 +111,8 @@
           job.progress(options.totalSteps - options.pending--, options.totalSteps);
           done(null);
         }).on('failed', function (err) {
-          done(new Error(404, 'error on: '+err));
+          done('error on: '+err);
         }).on('progress', function (value) {
-          //console.log('donwload', value);
           job.progress(options.totalSteps - options.pending--, options.totalSteps);
         });
       },
@@ -193,7 +192,6 @@
           }).on('failed', function () {
             done(new Error('error on upload'));
           }).on('progress', function (value) {
-            //console.log('upload', value);
             job.progress(options.totalSteps - options.pending--, options.totalSteps);
           });
       },

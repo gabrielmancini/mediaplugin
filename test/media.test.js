@@ -54,7 +54,14 @@ describe('Media <Unit Test>: ', function () {
   // });
 
   var User =  mongoose.model('User', UserSchema);
-  var demoUser = new User;
+  var mockResponse = function(expectedStatus, done) {
+    return {
+      send: function(statusCode, response) {
+        statusCode.should.equal(expectedStatus);
+        done();
+      }
+    }
+  }
 
   before(function (done) {
     // Start Workers Processors
@@ -99,65 +106,15 @@ describe('Media <Unit Test>: ', function () {
 
   describe('Media: ', function () {
 
-    describe.only('test on mock model', function () {
-      it.skip('shoud send local file to s3', function(done) {
-        var fileName = 'test/fixtures_images/113198687.jpg';
-        var options = {
-          name: fileName
-        };
-        var mockResponse = function(expectedStatus) {
-          return {
-            send: function(statusCode, response) {
-              //console.log(arguments);
-              statusCode.should.equal(201);
-              //statusCode.should.equal(200);
-              done();
-            }
-          }
-        }
-
-        demoUser.setProfilePicture(options).then(
-          Handler.FactoryHandler('http', { res: mockResponse(201) })
-        );
-      });
-
-      it.skip('shoud be able to response an error when not found file', function(done) {
-        var fileName = 'test/fixtures_images/113198681.jpg';
-        var options = {
-          name: fileName
-        };
-        var mockResponse = function(expectedStatus) {
-          return {
-            send: function(statusCode, response) {
-              //console.log(arguments);
-              statusCode.should.equal(404);
-              //statusCode.should.equal(200);
-              done();
-            }
-          }
-        }
-
-        demoUser.setProfilePicture(options).then(
-          Handler.FactoryHandler('http', { res: mockResponse(201) })
-        );
-      });
-
-      it('bla file2 proposed', function(done) {
+    describe('test on mock model', function () {
+      it('shoud send local file to s3', function(done) {
         var fileName = 'test/fixtures_images/113198687.jpg';
         var options = {
           name: fileName
         };
 
-        var mockResponse = function(expectedStatus) {
-          return {
-            send: function(statusCode, response) {
-              statusCode.should.equal(expectedStatus);
-              done();
-            }
-          }
-        }
-        var responseHandler = new Handler.ResponseHandler('http', { res: mockResponse(201) });
-
+        var responseHandler = new Handler.ResponseHandler('http', { res: mockResponse(201, done) });
+        var demoUser = new User
         demoUser.setProfilePicture(options)
           .then(responseHandler.sucessHandler.bind(responseHandler))
           .fail(responseHandler.failHandler.bind(responseHandler))
@@ -165,7 +122,23 @@ describe('Media <Unit Test>: ', function () {
 
       });
 
-      it.skip('shoud be able to download process and upload using https', function(done) {
+      it('shoud be able to response an error when not file exists', function(done) {
+        var fileName = 'not/file/exists.jpg';
+        var options = {
+          name: fileName
+        };
+
+        var responseHandler = new Handler.ResponseHandler('http', { res: mockResponse(500, done) });
+
+        var demoUser = new User
+        demoUser.setProfilePicture(options)
+          .then(responseHandler.sucessHandler.bind(responseHandler))
+          .fail(responseHandler.failHandler.bind(responseHandler))
+          .progress(responseHandler.progressHandler.bind(responseHandler));
+
+      });
+
+      it('shoud be able to download process and upload using https', function(done) {
         //var url = 'https://lorempixel.com/400/200/sports/Bilgow-Test';
         var url = 'https://fbcdn-sphotos-g-a.akamaihd.net/hphotos-ak-ash3/1393824_668658789820516_345410148_n.jpg'
 //        var url = 'https://2.gravatar.com/avatar/f1c731016b3283cab87c206045a469f4?d=https%3A%2F%2Fidenticons.github.com%2Fe8bd38de4565c58a98de89cd91969dd4.png&amp;s=420';
@@ -173,20 +146,14 @@ describe('Media <Unit Test>: ', function () {
           name: url
         };
 
-        var mockResponse = function(expectedStatus) {
-          return {
-            send: function(statusCode, response) {
-              //console.log(arguments);
-              statusCode.should.equal(201);
-              //statusCode.should.equal(200);
-              done();
-            }
-          }
-        }
+        var responseHandler = new Handler.ResponseHandler('http', { res: mockResponse(201, done) });
 
-        demoUser.setProfilePicture(options).then(
-          Media.factoryHandler('http', { res: mockResponse(201) })
-        );
+        var demoUser = new User
+        demoUser.setProfilePicture(options)
+          .then(responseHandler.sucessHandler.bind(responseHandler))
+          .fail(responseHandler.failHandler.bind(responseHandler))
+          .progress(responseHandler.progressHandler.bind(responseHandler));
+
       });
     });
 
@@ -196,6 +163,7 @@ describe('Media <Unit Test>: ', function () {
 
         var _url = 'https://lorempixel.com/400/200/sports/Bilgow-Test';
 
+        var demoUser = new User
         var media = new Media;
         demoUser.profile.picture.push(media);
         demoUser.save(function () {
@@ -210,7 +178,7 @@ describe('Media <Unit Test>: ', function () {
           downloadPromise.on('progress', proxyProgress);
 
           setTimeout(function() {
-            proxyProgress.callCount.should.equal(13);
+            proxyProgress.callCount.should.equal(16);
             proxyProgress.lastCall.args.should.eql([100]);
             sinon.assert.called(proxyProgress);
             sinon.assert.notCalled(proxyFail);
@@ -227,9 +195,12 @@ describe('Media <Unit Test>: ', function () {
     describe('Media Upload', function() {
       it('should be able to upload photo', function (done) {
 
-        User.findById(demoUser._id, function (err, user) {
-          var uploadPromise = user.getProfilePicture().upload();
+        var demoUser = new User
+        var media = new Media;
+        demoUser.profile.picture.push(media);
+        demoUser.save(function () {
 
+          var uploadPromise = demoUser.getProfilePicture().upload();
           var proxyComplete = sinon.spy();
           var proxyProgress = sinon.spy();
           var proxyFail = sinon.spy();
@@ -239,7 +210,7 @@ describe('Media <Unit Test>: ', function () {
           uploadPromise.on('progress', proxyProgress);
 
           setTimeout(function() {
-            proxyProgress.callCount.should.equal(9);
+            proxyProgress.callCount.should.equal(2);
             proxyProgress.lastCall.args.should.eql([100]);
             sinon.assert.called(proxyProgress);
             sinon.assert.notCalled(proxyFail);
@@ -249,7 +220,6 @@ describe('Media <Unit Test>: ', function () {
           }, 2000);
 
         });
-
       });
     });
 

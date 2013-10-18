@@ -145,7 +145,6 @@ var mediaPlugin = function (schema, optionsPlugin) {
             defered.reject(err);
           } else {
             queue.getByJobId(jobId, function (err, job) {
-              console.log(err)
 
               if (['complete', 'failed'].indexOf(job._state) !== -1) {
                 //obj.customGetMethod
