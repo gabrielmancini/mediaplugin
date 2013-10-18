@@ -25,7 +25,7 @@
       fileName: null,
       file: null,
       media: null,
-      totalSteps: 14,
+      totalSteps: 16,
       pending: null
     }, options);
     options.pending = options.totalSteps -1
@@ -73,17 +73,29 @@
         job.progress(options.totalSteps - options.pending--, options.totalSteps);
 
         if (options.skip) {
-          var wr = fs.createReadStream('.'+options.url);
 
-          wr.pipe(options.file)
-            .on('error', function (err) {
+          var localfile = '.'+options.url;
+          job.progress(options.totalSteps - options.pending--, options.totalSteps);
+          fs.stat(localfile, function (err, stat) {
+            if (err) {
               return cb(err);
-            });
+            }
+            var wr = fs.createReadStream(localfile);
+
+            job.progress(options.totalSteps - options.pending--, options.totalSteps);
+            wr.pipe(options.file)
+              .on('error', function (err) {
+                return cb(err);
+              });
+          });
+
 
 
         } else {
 
+          job.progress(options.totalSteps - options.pending--, options.totalSteps);
           protocol.get(options.url, function (response) {
+            job.progress(options.totalSteps - options.pending--, options.totalSteps);
             response.pipe(options.file);
           }).on('error', function (err) {
             return cb(err);

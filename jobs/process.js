@@ -19,11 +19,11 @@
 
 
     var processTotalSteps = 15;
-    var downloadTotalSteps = 14;
-    var uploadTotalSteps = 3;
+    var downloadTotalSteps = 16;
+    var uploadTotalSteps = 2;
 
 
-    options = _.extend({
+    options = _.merge({
       pathMedia: null,
       idMedia: null,
       parent: {
@@ -39,6 +39,11 @@
       processOptions: null,
       output: null,
       tmpFileName: null,
+      aws: {
+        s3: {
+          buckets: []
+        }
+      },
       totalSteps: 0,
       pending: -1
     }, options);
@@ -80,12 +85,10 @@
 
       setProcessor: function (done) {
 
-        var processor = new ProcessFactory(options.media, options.processOptions).factory();
-        //console.log(options.media); process.exit();
-
+        var processor = ProcessFactory.get(options.media.type, options.media, options.processOptions);
         options.totalSteps += processTotalSteps;
         options.totalSteps += downloadTotalSteps;
-        options.totalSteps += uploadTotalSteps;
+        options.totalSteps += uploadTotalSteps + (7 * options.output.length);
         options.totalSteps += (processor.getTotalSteps() * options.output.length);
 
         options.pending = options.totalSteps -1;
@@ -106,12 +109,11 @@
 
         fnDownload.on('complete', function () {
           job.progress(options.totalSteps - options.pending--, options.totalSteps);
-        console.log('*****************');
           done(null);
         }).on('failed', function (err) {
-          done(new Error('error on download'));
+          done(new Error(404, 'error on: '+err));
         }).on('progress', function (value) {
-          console.log('donwload', value);
+          //console.log('donwload', value);
           job.progress(options.totalSteps - options.pending--, options.totalSteps);
         });
       },
@@ -184,14 +186,14 @@
 
         customGetMethod
           .apply(containerObj, [options.idMedia])
-          .upload()
+          .upload(options.aws)
           .on('complete', function () {
             job.progress(options.totalSteps - options.pending--, options.totalSteps);
             done(null);
           }).on('failed', function () {
             done(new Error('error on upload'));
           }).on('progress', function (value) {
-            console.log('upload', value);
+            //console.log('upload', value);
             job.progress(options.totalSteps - options.pending--, options.totalSteps);
           });
       },

@@ -163,11 +163,12 @@ MediaSchema.methods.download = function(url, options, done) {
   return queue;
 }
 
-MediaSchema.methods.upload = function(options, done) {
+MediaSchema.methods.upload = function(aws, options, done) {
   var MessageQueue = this.parent().getMediaQueue();
   var queue = new MessageQueue();
 
   options = this.setOptions(options);
+  options.aws = aws;
 
   queue.addOn('media-upload', options, function(err, jobId) {
     if (done) {
@@ -175,101 +176,6 @@ MediaSchema.methods.upload = function(options, done) {
     }
   });
   return queue;
-}
-
-MediaSchema.statics.responseHandler = function (type, options) {
-
-  var returnMedia = function(job, mediaId, cb) {
-
-    var model = mongoose.model(job.data.parent.modelName);
-    model.findById(job.data.parent.value._id, function(err, doc) {
-      var media = doc.get(job.data.pathMedia).id(mediaId);
-      cb(err, media);
-    });
-
-  }
-
-  var sucessHandler = function (value) {
-
-  };
-
-  var failHandler = function (error) {
-
-  };
-
-  var progressHandler = function (value) {
-
-  };
-
-  return {
-    sucessHandler: sucessHandler,
-    failHandler: failHandler,
-    progressHandler: progressHandler
-  }
-
-}
-
-MediaSchema.statics.factoryHandler = function(type, options) {
-
-  var types = ['http', 'socket'];
-  var Media = mongoose.model('Media');
-
-  var returnMedia = function(job, mediaId, cb) {
-
-    var model = mongoose.model(job.data.parent.modelName);
-    model.findById(job.data.parent.value._id, function(err, doc) {
-      var media = doc.get(job.data.pathMedia).id(mediaId);
-      cb(err, media);
-    });
-
-  }
-
-  var completeHandler = function(job, mediaId) {
-    return function() {
-        returnMedia(job, mediaId, function (err, media) {
-        if (type === 'socket') {
-  //            socket.send(job.name + '-complete', media);
-        } else {
-          options.res.send(201, media);
-        }
-      })
-    }
-  };
-
-  return function (media) {
-
-    Media.getJobHandler({ media: media }, function (err, job) {
-
-      if (['complete', 'failed'].indexOf(job._state) !== -1) {
-        completeHandler(job, media._id);
-      } else {
-        job.subscribe()
-          .on('complete', completeHandler(job, media._id))
-          .on('failed', function () {
-            if (type === 'socket') {
-    //            socket.send(job.name + '-failed', job.error());
-            } else {
-              options.res.send(500, job.error())
-            }
-          })
-          .on('progress', function (value) {
-            console.log('process', value)
-            if (type === 'socket') {
-    //            socket.send(job.name + '-progress', value);
-            }
-          });
-      }
-
-    });
-  }
-}
-
-MediaSchema.statics.getJobHandler = function(options, next) {
-  var media = options.media;
-  var mediaId = media._id;
-  media.getQueue().getByJobId(media._jobId, function (err, job) {
-    next(err, job);
-  });
 }
 
 module.exports = mongoose.model('Media', MediaSchema);

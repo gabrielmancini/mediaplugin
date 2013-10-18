@@ -1,18 +1,25 @@
 var mongoose = require('mongoose'),
-    Media = require('../').model,
+    Media = require('../model/media'),
+    ResponseHandler = require('../lib/handler/ResponseHandler'),
     MediaSchema = Media.schema,
     Q = require('q'),
     url = require('url'),
     path = require('path'),
+    async = require('async'),
     _ = require('lodash');
 
 var mediaPlugin = function (schema, optionsPlugin) {
 
-  optionsPlugin = _.extend({
+  optionsPlugin = _.merge({
     field : '',
     genMethod: true,
     single: false,
-    output: 'all'
+    output: 'all',
+    aws: {
+      s3: {
+        buckets: []
+      }
+    }
   }, optionsPlugin || {});
 
   var customGetMethod = _.str.camelize('get ' + optionsPlugin.field.split('.').join(' '));
@@ -129,19 +136,36 @@ var mediaPlugin = function (schema, optionsPlugin) {
 
         var processOptions = {
           processOptions: psOptions,
-          output: optionsPlugin.output
+          output: optionsPlugin.output,
+          aws: optionsPlugin.aws
         }
 
         var queue = media.process(processOptions, function (err, jobId) {
           if (err) {
             defered.reject(err);
           } else {
-            media.setQueue(queue, jobId);
-            defered.resolve(media);
+            queue.getByJobId(jobId, function (err, job) {
+              console.log(err)
+
+              if (['complete', 'failed'].indexOf(job._state) !== -1) {
+                //obj.customGetMethod
+                defered.resolve(mediaId);
+                //completeHandler(job, media._id);
+              } else {
+
+                job.subscribe()
+                  .on('complete', function() { defered.resolve( { obj: obj, getMethod: customGetMethod, mediaId: mediaId} ) } )
+                  .on('failed', function() { defered.reject(job.error()) } )
+                  .on('progress', function(value) { defered.notify(value) } );
+              }
+
+            });
+            //defered.resolve({ media: media, promise: defered });
           }
         });
       }
     });
+
     return defered.promise;
   }
 };

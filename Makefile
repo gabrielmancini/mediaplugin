@@ -12,7 +12,7 @@ test: clean
 clean:
 	@if [ ! -n "$(NODE_ENV)" ]; then \
 		echo FLUSHDB | redis-cli -n 2; \
-		mongo test --eval "db.dropDatabase()"; \
+		mongo mediaplugin-test --eval "db.dropDatabase()"; \
 	fi;
 
 

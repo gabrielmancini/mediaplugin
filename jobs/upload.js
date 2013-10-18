@@ -11,16 +11,18 @@
 
 //  temp.track();
 
-  function sendFile(job, progress, obj, media, suffixName, done) {
+  function sendFile(job, options, suffixName, done) {
+    var obj = options.obj;
+    var media = options.media;
 
     async.waterfall([
       function setAttributes (cb) {
         try {
-          job.progress(progress.totalSteps - progress.pending--, progress.totalSteps);
+          job.progress(options.totalSteps - options.pending--, options.totalSteps);
           var fileName = path.join(media.tmp.path, media.getSuffixName(suffixName));
           var stream = fs.createReadStream(fileName);
           var buf = new Buffer('');
-          job.progress(progress.totalSteps - progress.pending--, progress.totalSteps);
+          job.progress(options.totalSteps - options.pending--, options.totalSteps);
           return cb(null, stream, buf);
         } catch (err) {
           return cb(err);
@@ -28,12 +30,12 @@
       },
 
       function readFile (stream, buf, cb) {
-        job.progress(progress.totalSteps - progress.pending--, progress.totalSteps);
+        job.progress(options.totalSteps - options.pending--, options.totalSteps);
         stream.on('data', function (data) {
            buf = Buffer.concat([buf, data]);
         });
         stream.on('end', function () {
-          job.progress(progress.totalSteps - progress.pending--, progress.totalSteps);
+          job.progress(options.totalSteps - options.pending--, options.totalSteps);
           return cb(null, buf);
         });
         stream.on('error', function (err) {
@@ -42,24 +44,24 @@
       },
 
       function sendToS3 (buf, cb) {
-        job.progress(progress.totalSteps - progress.pending--, progress.totalSteps);
+        job.progress(options.totalSteps - options.pending--, options.totalSteps);
         var data = {
-          //TODO: criar um methodo para recuperar o bucket menos usado
           ACL: 'public-read',
-          Bucket: 'develop.media.batman.bilgow.com' || config.aws.services.s3.buckets[0],
+          //TODO: criar um methodo para recuperar o bucket menos usado
+          Bucket: options.aws.s3.buckets[0],
           Key: [obj.constructor.modelName.toLowerCase(), media.url.path, media.getSuffixName(suffixName)].join('/'),
           Body: buf,
           ContentType: mime.lookup(media.mime)
         };
 
         s3.client.putObject(data, function (err, res) {
-          job.progress(progress.totalSteps - progress.pending--, progress.totalSteps);
-          return done(err);
+          job.progress(options.totalSteps - options.pending--, options.totalSteps);
+          return cb(err);
         });
       }
     ]
     , function(err, results) {
-      job.progress(progress.totalSteps - progress.pending--, progress.totalSteps);
+      job.progress(options.totalSteps - options.pending--, options.totalSteps);
       done(err);
     });
   }
@@ -70,14 +72,19 @@
   function uploadMedia(job, done) {
 
     var options = job.data || {};
-    options = _.extend({
+    options = _.merge({
       obj: null,
       media: null,
       fileName: null,
       stream: null,
       buf: new Buffer(''),
-      totalSteps: 3,
-      pending: null
+      aws: {
+        s3: {
+          buckets: []
+        }
+      },
+      totalSteps: 0,
+      pending: 0
     }, options);
 
 
@@ -89,13 +96,17 @@
           function (err, _obj) {
             options.obj = _obj;
             options.media = _obj.get(options.pathMedia).id(options.idMedia);
-            options.totalSteps += (6 * options.media.available.length);
-            options.pending = options.totalSteps -1;
-            job.progress(options.totalSteps - options.pending--, options.totalSteps);
             return cb(err);
           }
         );
 
+      },
+
+      setTotalSteps: function (done) {
+        options.totalSteps = 2;
+        options.totalSteps += (7 * options.media.available.length);
+        options.pending = options.totalSteps -1;
+        done(null);
       },
 
       iterateFiles: function (cb) {
@@ -104,7 +115,7 @@
         async.map(
           options.media.available,
           function (item, fn) {
-            sendFile(job, options, options.obj, options.media, item, fn);
+            sendFile(job, options, item, fn);
           },
           function(err, results){
             cb(err);

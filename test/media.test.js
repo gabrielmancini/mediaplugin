@@ -24,7 +24,8 @@ describe('Media <Unit Test>: ', function () {
   var MediaPlugin = require('../'),
     Plugin = MediaPlugin.plugin,
     Media = MediaPlugin.model,
-    Jobs = MediaPlugin.jobs;
+    Jobs = MediaPlugin.jobs,
+    Handler = MediaPlugin.handler;
 
   var UserSchema = new Schema({
       name: { first: String, middle: String, last: String },
@@ -38,7 +39,12 @@ describe('Media <Unit Test>: ', function () {
     processOptions: {
       normal: { width: 800 }
     },
-    queue: queue
+    queue: queue,
+    aws: {
+      s3: {
+        buckets: ['develop.media.batman.bilgow.com', 'develop.media.superman.bilgow.com']
+      }
+    }
   });
 
   // UserSchema.plugin(Plugin, {
@@ -93,8 +99,8 @@ describe('Media <Unit Test>: ', function () {
 
   describe('Media: ', function () {
 
-    describe('Test', function () {
-      it.only('bla file', function(done) {
+    describe.only('test on mock model', function () {
+      it.skip('shoud send local file to s3', function(done) {
         var fileName = 'test/fixtures_images/113198687.jpg';
         var options = {
           name: fileName
@@ -111,11 +117,32 @@ describe('Media <Unit Test>: ', function () {
         }
 
         demoUser.setProfilePicture(options).then(
-          Media.factoryHandler('http', { res: mockResponse(201) })
+          Handler.FactoryHandler('http', { res: mockResponse(201) })
         );
       });
 
-      it.skip('bla file2', function(done) {
+      it.skip('shoud be able to response an error when not found file', function(done) {
+        var fileName = 'test/fixtures_images/113198681.jpg';
+        var options = {
+          name: fileName
+        };
+        var mockResponse = function(expectedStatus) {
+          return {
+            send: function(statusCode, response) {
+              //console.log(arguments);
+              statusCode.should.equal(404);
+              //statusCode.should.equal(200);
+              done();
+            }
+          }
+        }
+
+        demoUser.setProfilePicture(options).then(
+          Handler.FactoryHandler('http', { res: mockResponse(201) })
+        );
+      });
+
+      it('bla file2 proposed', function(done) {
         var fileName = 'test/fixtures_images/113198687.jpg';
         var options = {
           name: fileName
@@ -124,24 +151,21 @@ describe('Media <Unit Test>: ', function () {
         var mockResponse = function(expectedStatus) {
           return {
             send: function(statusCode, response) {
-              //console.log(arguments);
-              statusCode.should.equal(201);
-              //statusCode.should.equal(200);
+              statusCode.should.equal(expectedStatus);
               done();
             }
           }
         }
-
-        var responseHandler = Media.responseHandler('http', { res: mockResponse(201) });
+        var responseHandler = new Handler.ResponseHandler('http', { res: mockResponse(201) });
 
         demoUser.setProfilePicture(options)
-          .then(responseHandler.sucessHandler)
-          .fail(responseHandler.failHandler)
-          .progress(responseHandler.progressHandler);
+          .then(responseHandler.sucessHandler.bind(responseHandler))
+          .fail(responseHandler.failHandler.bind(responseHandler))
+          .progress(responseHandler.progressHandler.bind(responseHandler));
 
       });
 
-      it('bla web https', function(done) {
+      it.skip('shoud be able to download process and upload using https', function(done) {
         //var url = 'https://lorempixel.com/400/200/sports/Bilgow-Test';
         var url = 'https://fbcdn-sphotos-g-a.akamaihd.net/hphotos-ak-ash3/1393824_668658789820516_345410148_n.jpg'
 //        var url = 'https://2.gravatar.com/avatar/f1c731016b3283cab87c206045a469f4?d=https%3A%2F%2Fidenticons.github.com%2Fe8bd38de4565c58a98de89cd91969dd4.png&amp;s=420';
