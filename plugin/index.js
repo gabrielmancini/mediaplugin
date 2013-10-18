@@ -39,12 +39,6 @@ var mediaPlugin = function (schema, optionsPlugin) {
     definition[propertyName].index = optionsPlugin.index;
   }
 
-  // @TODO Array optionsPlugin
-  /*if (optionsPlugin.type == 'array') {
-    definition[propertyName].type = [MediaSchema];
-  } else {
-    definition[propertyName].type = MediaSchema;
-  }*/
   definition[propertyName].type = [MediaSchema];
 
   if (optionsPlugin.df) {

@@ -1,3 +1,26 @@
+var kue   = require('kue');
+
+/**
+ * Overide createClient to use config
+ */
+function createClient(url) {
+  var redis = require('redis'),
+      config = parseRedisUrl(url);
+
+  var client = redis.createClient(config.port, config.host, config.options);
+  client.select(config.database);
+
+  if (config.password)
+    client.auth(config.password);
+
+  return client;
+}
+
+kue.redis.createClient = function () {
+  var client = createClient('redis://localhost/2');
+  return client;
+};
+
 /**
  * Parse url connection configuration
  */
@@ -23,21 +46,6 @@ function parseRedisUrl(url) {
 // Exports parseRedisUrl
 module.exports.parseRedisUrl = parseRedisUrl;
 
-/**
- * Overide createClient to use config
- */
-function createClient(url) {
-  var redis = require('redis'),
-      config = parseRedisUrl(url);
-
-  var client = redis.createClient(config.port, config.host, config.options);
-  client.select(config.database);
-
-  if (config.password)
-    client.auth(config.password);
-
-  return client;
-}
-
 // Exports createClient
 module.exports.createClient = createClient;
+module.exports.kue = kue;

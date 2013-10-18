@@ -161,8 +161,6 @@
 
         job.progress(options.totalSteps - options.pending--, options.totalSteps);
 
-        //var processor = Media.ProcessDocument.factory(options.media, options.processOptions);
-
         options.processor.run(job, function (err, results) {
           job.progress(options.totalSteps - options.pending--, options.totalSteps);
           done(err);

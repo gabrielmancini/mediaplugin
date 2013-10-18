@@ -6,6 +6,7 @@ var
   Schema = mongoose.Schema,
   sinon = require('sinon'),
   fs = require('fs-extra'),
+  _ = require('lodash'),
   url = require('url'),
   path = require('path'),
   AWS = require('aws-sdk'),
@@ -22,7 +23,6 @@ describe('Media <Unit Test>: ', function () {
   AWS.config.update({region: 'sa-east-1'});
 
   var MediaPlugin = require('../'),
-    Plugin = MediaPlugin.plugin,
     Media = MediaPlugin.model,
     Jobs = MediaPlugin.jobs,
     Handler = MediaPlugin.handler;
@@ -31,7 +31,7 @@ describe('Media <Unit Test>: ', function () {
       name: { first: String, middle: String, last: String },
   });
 
-  UserSchema.plugin(Plugin, {
+  UserSchema.plugin(MediaPlugin.plugin, {
     field: 'profile.picture',
     type: 'image',
     single: true,
@@ -46,12 +46,6 @@ describe('Media <Unit Test>: ', function () {
       }
     }
   });
-
-  // UserSchema.plugin(Plugin, {
-  //   field: 'profile.cover',
-  //   type: 'image',
-  //   single: true
-  // });
 
   var User =  mongoose.model('User', UserSchema);
   var mockResponse = function(expectedStatus, done) {
@@ -106,7 +100,38 @@ describe('Media <Unit Test>: ', function () {
 
   describe('Media: ', function () {
 
+    describe('Mock Schema Plugin', function () {
+      var DummySchema = new Schema({
+        text: String
+      });
+
+      DummySchema.plugin(MediaPlugin.plugin, {
+        field: 'comments.picture',
+        type: 'image',
+        single: true,
+        queue: queue,
+      });
+
+      it ('should create a custom method to get the media', function (done) {
+        _.isFunction(DummySchema.methods.getCommentsPicture).should.be.equal.true;
+        done();
+      });
+
+      it ('should create a custom method to to process the media', function (done) {
+        _.isFunction(DummySchema.methods.setCommentsPicture).should.be.equal.true;
+        done();
+      });
+
+      it ('should create a custom method to to process the media', function (done) {
+        console.log(DummySchema);
+        _.isFunction(DummySchema.methods.setCommentsPicture).should.be.equal.true;
+        done();
+      });
+
+    });
+
     describe('test on mock model', function () {
+
       it('shoud send local file to s3', function(done) {
         var fileName = 'test/fixtures_images/113198687.jpg';
         var options = {
