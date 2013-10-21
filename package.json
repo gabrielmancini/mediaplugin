@@ -11,7 +11,10 @@
     "test": "make test",
     "start": "make start"
   },
-  "repository": "",
+ "repository": {
+    "type": "git",
+    "url": "https://github.com/gabrielmancini/mediaplugin"
+  },
   "author": "Gabriel Mancini gabriel.mancini@gmail.com, Henrrique Zucareli hzucareli@gmail.com",
   "license": "BSD",
   "dependencies": {
