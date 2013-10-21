@@ -14,14 +14,6 @@ var
 
 describe('Media <Unit Test>: ', function () {
 
-  AWS.config.update(
-    {
-      accessKeyId: "AKIAJD2XYYTYWWGHMN3Q",
-      secretAccessKey: "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"
-    }
-  );
-  AWS.config.update({region: 'sa-east-1'});
-
   var MediaPlugin = require('../'),
     Media = MediaPlugin.model,
     Jobs = MediaPlugin.jobs,
@@ -42,7 +34,7 @@ describe('Media <Unit Test>: ', function () {
     queue: queue,
     aws: {
       s3: {
-        buckets: ['develop.media.batman.bilgow.com', 'develop.media.superman.bilgow.com']
+        buckets: ['develop.media.batman', 'develop.media.superman']
       }
     }
   });
@@ -123,7 +115,6 @@ describe('Media <Unit Test>: ', function () {
       });
 
       it ('should create a custom method to to process the media', function (done) {
-        console.log(DummySchema);
         _.isFunction(DummySchema.methods.setCommentsPicture).should.be.equal.true;
         done();
       });

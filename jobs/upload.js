@@ -3,11 +3,11 @@
       fs = require('fs'),
       path = require('path'),
       mime = require('mime'),
-      AWS = require('aws-sdk'),
+      AWS = (['test', 'ci'].indexOf(process.env.NODE_ENV) >=0)? require('mock-aws-s3') : require('aws-sdk'),
       async = require('async'),
       Media = require('../').model,
       _ = require('lodash'),
-      s3 = new AWS.S3();
+      s3 = (['test', 'ci'].indexOf(process.env.NODE_ENV) >=0)? { client: new AWS.S3() } : new AWS.S3();
 
 //  temp.track();
 

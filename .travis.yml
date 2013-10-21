@@ -1,28 +1,15 @@
 language: node_js
 node_js:
-  - 0.11.3
+  - 0.10
 env:
-  - NODE_ENV=ci ES_HOME=/usr/share/elasticsearch
+  - NODE_ENV=ci
 services:
-  - redis-server
+  - mongodb
   - neo4j
   - elasticsearch
 before_install:
-  # - rm -rf ~/.nvm
-  # - curl https://raw.github.com/creationix/nvm/master/install.sh | sh
-  # - source ~/.nvm/nvm.sh
-  # - nvm install 0.11.2
-  - sudo $TRAVIS_BUILD_DIR/ci/mongo.sh
-  - sleep 3
-  # - sudo $TRAVIS_BUILD_DIR/ci/es.sh
-  # - sleep 3
 after_success:
-  - $TRAVIS_BUILD_DIR/ci/deploy.sh
 notifications:
   email:
-    - gmancini@bilgow.com
-    - nfrancisco@bilgow.com
-    - fsoares@bilgow.com
-    - jneto@bilgow.com
-    - hzucareli@bilgow.com
-    - apiccolo@bilgow.com
+    - gabriel.mancini@gmail.com
+    - hzucareli@gmail.com
