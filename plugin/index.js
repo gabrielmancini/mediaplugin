@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
     Media = require('../model/media'),
+    MediaSchema = require('../model/media').schema,
     ResponseHandler = require('../lib/handler/ResponseHandler'),
-    MediaSchema = Media.schema,
     Q = require('q'),
     url = require('url'),
     path = require('path'),
@@ -38,7 +38,6 @@ var mediaPlugin = function (schema, optionsPlugin) {
   if (optionsPlugin.index) {
     definition[propertyName].index = optionsPlugin.index;
   }
-
   definition[propertyName].type = [MediaSchema];
 
   if (optionsPlugin.df) {
@@ -91,13 +90,13 @@ var mediaPlugin = function (schema, optionsPlugin) {
       media = new Media;
       var parsedUrl = url.parse(data.name);
 
-      if (data.type) {
-        media.original.type = data.type;
+      if (data.origin) {
+        media.original.origin = data.origin;
       } else {
-        media.original.type = (parsedUrl.protocol) ? 'web' : 'file';
+        media.original.origin = (parsedUrl.protocol) ? 'web' : 'file';
       }
 
-      if (media.original.type == 'web') {
+      if (media.original.origin == 'web') {
         media.setOriginalUrl(data.name)
       } else {
         media.original.name = path.basename(data.name);
@@ -105,7 +104,7 @@ var mediaPlugin = function (schema, optionsPlugin) {
       }
     }
 
-    media.type = optionsPlugin.type;
+    media.mediaType = optionsPlugin.mediaType;
 
     if (optionsPlugin.single) {
       obj.get(optionsPlugin.field).shift();

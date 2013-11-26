@@ -37,7 +37,7 @@ var hosts = {
 
 // @TODO validate mime according to `type` property
 var MediaSchema = new Schema({
-  type: { type: String, 'enum': Object.keys(mediaTypes) },
+  mediaType: { type: String, 'enum': Object.keys(mediaTypes) },
   mime: { type: String, 'default': ''  },
   available: [{ type: String }],
   url: {
@@ -61,7 +61,7 @@ var MediaSchema = new Schema({
     name: String,
     host: { type: String },
     path: { type: String },
-    type: { type: String, 'enum': ['web', 'file'] }
+    origin: { type: String, 'enum': ['web', 'file'] }
   },
   created: { type: Date, required: true, 'default': Date.now }
 });
@@ -85,7 +85,7 @@ MediaSchema.statics.mediaTypes = mediaTypes;
 
 MediaSchema.methods.getMediaTypeOptions = function() {
   var Media = mongoose.model('Media');
-  return Media.mediaTypes[this.type].options;
+  return Media.mediaTypes[this.mediaType].options;
 }
 
 MediaSchema.methods.getSuffixName = function(suffixType) {
@@ -179,3 +179,4 @@ MediaSchema.methods.upload = function(aws, options, done) {
 }
 
 module.exports = mongoose.model('Media', MediaSchema);
+module.exports.MediaSchema = MediaSchema;

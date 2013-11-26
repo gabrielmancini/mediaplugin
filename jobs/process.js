@@ -71,7 +71,7 @@
 
       validateOutput: function (done) {
 
-        var availableTypes = Media.mediaTypes[options.media.type].available_types;
+        var availableTypes = Media.mediaTypes[options.media.mediaType].available_types;
         if (options.output === 'all') {
           options.output = availableTypes;
         } else {
@@ -84,8 +84,7 @@
       },
 
       setProcessor: function (done) {
-
-        var processor = ProcessFactory.get(options.media.type, options.media, options.processOptions);
+        var processor = ProcessFactory.get(options.media.mediaType, options.media, options.processOptions);
         options.totalSteps += processTotalSteps;
         options.totalSteps += downloadTotalSteps;
         options.totalSteps += uploadTotalSteps + (7 * options.output.length);
@@ -105,7 +104,7 @@
 
         var fnDownload = customGetMethod
           .apply(containerObj, [options.idMedia])
-          .download(options.media.getOriginalUrl(), { skip: (options.media.original.type !== 'web') });
+          .download(options.media.getOriginalUrl(), { skip: (options.media.original.origin !== 'web') });
 
         fnDownload.on('complete', function () {
           job.progress(options.totalSteps - options.pending--, options.totalSteps);
@@ -134,7 +133,7 @@
       validateFile: function (done) {
         job.progress(options.totalSteps - options.pending--, options.totalSteps);
         mimeMagic(options.tmpFileName, function(err, type) {
-          options.mediaType = Media.mediaTypes[options.media.type],
+          options.mediaType = Media.mediaTypes[options.media.mediaType],
           options.supportedMimeTypes = options.mediaType.suported_mimes;
           options.media.mime = type;
 

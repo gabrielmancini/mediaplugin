@@ -10,36 +10,17 @@ var
   url = require('url'),
   path = require('path'),
   AWS = require('aws-sdk'),
-  queue = require('./message-queue');
+  queue = require('../message-queue'),
+  extend = require('mongoose-schema-extend'),
+  User = require('../models/user');
 
 describe('Media <Unit Test>: ', function () {
 
-  var MediaPlugin = require('../'),
+  var MediaPlugin = require('../../'),
     Media = MediaPlugin.model,
     Jobs = MediaPlugin.jobs,
     Handler = MediaPlugin.handler;
 
-  var UserSchema = new Schema({
-      name: { first: String, middle: String, last: String },
-  });
-
-  UserSchema.plugin(MediaPlugin.plugin, {
-    field: 'profile.picture',
-    type: 'image',
-    single: true,
-    output: ['original', 'thumbnail'],
-    processOptions: {
-      normal: { width: 800 }
-    },
-    queue: queue,
-    aws: {
-      s3: {
-        buckets: ['develop.media.batman', 'develop.media.superman']
-      }
-    }
-  });
-
-  var User =  mongoose.model('User', UserSchema);
   var mockResponse = function(expectedStatus, done) {
     return {
       send: function(statusCode, response) {
@@ -99,7 +80,7 @@ describe('Media <Unit Test>: ', function () {
 
       DummySchema.plugin(MediaPlugin.plugin, {
         field: 'comments.picture',
-        type: 'image',
+        mediaType: 'image',
         single: true,
         queue: queue,
       });

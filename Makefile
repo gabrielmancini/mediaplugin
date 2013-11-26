@@ -4,7 +4,7 @@ NODEARGS = --harmony-generators
 test: clean
 	@./node_modules/.bin/jshint ./**/*.js --config .jshintrc &2> /dev/null
 	@if [ ! -n "$(NODE_ENV)" ]; then \
-		NODE_ENV=test NODE_PATH=lib nodemon --exec "./node_modules/.bin/mocha -R $(REPORTER) -t 15000 --recursive" test $(NODEARGS) ; \
+		NODE_ENV=test NODE_PATH=lib nodemon --exec "./node_modules/.bin/mocha -R $(REPORTER) -t 15000 --recursive" test/suite $(NODEARGS) ; \
 	else  \
 		NODE_PATH=lib mocha -R $(REPORTER) -t 15000 --recursive test $(NODEARGS) ; \
 	fi
