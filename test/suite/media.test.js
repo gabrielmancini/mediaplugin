@@ -11,15 +11,21 @@ var
   path = require('path'),
   AWS = require('aws-sdk'),
   queue = require('../message-queue'),
-  extend = require('mongoose-schema-extend'),
-  User = require('../models/user');
+  extend = require('mongoose-schema-extend');
 
 describe('Media <Unit Test>: ', function () {
 
-  var MediaPlugin = require('../../'),
-    Media = MediaPlugin.model,
-    Jobs = MediaPlugin.jobs,
-    Handler = MediaPlugin.handler;
+  var User,
+    MediaPlugin,
+    Media,
+    Jobs,
+    Handler,
+    Plugin;
+
+  // var MediaPlugin = require('../../'),
+  //   Media = MediaPlugin.model,
+  //   Jobs = MediaPlugin.jobs,
+  //   Handler = MediaPlugin.handler;
 
   var mockResponse = function(expectedStatus, done) {
     return {
@@ -33,6 +39,19 @@ describe('Media <Unit Test>: ', function () {
   before(function (done) {
     // Start Workers Processors
 
+    MediaPlugin = require('../../');
+
+
+    MediaPlugin.init({
+      mongoose: mongoose
+    });
+
+
+    Media = MediaPlugin.get('model');
+    Jobs = MediaPlugin.get('jobs');
+    Handler = MediaPlugin.get('handler');
+    Plugin = MediaPlugin.get('plugin');
+    User = require('../models/user');
 
     async.series({
       connect: function (cb) {
@@ -77,14 +96,14 @@ describe('Media <Unit Test>: ', function () {
       var DummySchema = new Schema({
         text: String
       });
-
-      DummySchema.plugin(MediaPlugin.plugin, {
+console.log('Plugin', Plugin)
+     /* DummySchema.plugin(Plugin, {
         field: 'comments.picture',
         mediaType: 'image',
         single: true,
         queue: queue,
       });
-
+*/
       it ('should create a custom method to get the media', function (done) {
         _.isFunction(DummySchema.methods.getCommentsPicture).should.be.equal.true;
         done();
@@ -111,7 +130,7 @@ describe('Media <Unit Test>: ', function () {
         };
 
         var responseHandler = new Handler.ResponseHandler('http', { res: mockResponse(201, done) });
-        var demoUser = new User
+        var demoUser = new User();
         demoUser.setProfilePicture(options)
           .then(responseHandler.sucessHandler.bind(responseHandler))
           .fail(responseHandler.failHandler.bind(responseHandler))
@@ -127,7 +146,7 @@ describe('Media <Unit Test>: ', function () {
 
         var responseHandler = new Handler.ResponseHandler('http', { res: mockResponse(500, done) });
 
-        var demoUser = new User
+        var demoUser = new User();
         demoUser.setProfilePicture(options)
           .then(responseHandler.sucessHandler.bind(responseHandler))
           .fail(responseHandler.failHandler.bind(responseHandler))
@@ -145,7 +164,7 @@ describe('Media <Unit Test>: ', function () {
 
         var responseHandler = new Handler.ResponseHandler('http', { res: mockResponse(201, done) });
 
-        var demoUser = new User
+        var demoUser = new User();
         demoUser.setProfilePicture(options)
           .then(responseHandler.sucessHandler.bind(responseHandler))
           .fail(responseHandler.failHandler.bind(responseHandler))
@@ -160,8 +179,8 @@ describe('Media <Unit Test>: ', function () {
 
         var _url = 'https://lorempixel.com/400/200/sports/Bilgow-Test';
 
-        var demoUser = new User
-        var media = new Media;
+        var demoUser = new User();
+        var media = new Media();
         demoUser.profile.picture.push(media);
         demoUser.save(function () {
           var downloadPromise = demoUser.getProfilePicture(media._id).download(_url);
@@ -192,8 +211,8 @@ describe('Media <Unit Test>: ', function () {
     describe('Media Upload', function() {
       it('should be able to upload photo', function (done) {
 
-        var demoUser = new User
-        var media = new Media;
+        var demoUser = new User();
+        var media = new Media();
         demoUser.profile.picture.push(media);
         demoUser.save(function () {
 

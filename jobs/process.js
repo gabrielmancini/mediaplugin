@@ -7,13 +7,16 @@
     path = require('path'),
     _ = require('lodash'),
     async = require('async'),
-    mongoose = require('mongoose'),
     ProcessFactory = require('../lib/ProcessFactory'),
-    crypto = require('crypto'),
-    Media = require('../').model;
+    crypto = require('crypto');
   //temp.track();
 
   function processMedia(job, next) {
+
+    var MediaPlugin = require('../');
+
+    var mongoose = MediaPlugin.getMongoose(),
+        Media = MediaPlugin.get('model');
 
     var options = job.data || {};
 

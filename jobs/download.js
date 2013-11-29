@@ -4,10 +4,8 @@
       fs = require('fs'),
       path = require('path'),
       crypto = require('crypto'),
-      Media = require('../').model,
       _ = require('lodash'),
       async = require('async'),
-      mongoose = require('mongoose'),
       temp = require('temp');
 
   //temp.track();
@@ -16,6 +14,11 @@
    * Process recover password
    */
   function downloadMedia(job, done) {
+    var MediaPlugin = require('../');
+
+    var mongoose = MediaPlugin.getMongoose(),
+        Media = MediaPlugin.get('model');
+
     var options = job.data || {};
     options = _.extend({
       url: '',

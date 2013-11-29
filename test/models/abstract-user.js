@@ -86,8 +86,7 @@ AbstractUserSchema.set('graphability1',
 // AbstractUserSchema.plugin(mongoosastic, config.mongoosastic);
 // AbstractUserSchema.plugin(elasticfilter);
 // Methods
-
-AbstractUserSchema.plugin(mediaplugin.plugin, {
+AbstractUserSchema.plugin(mediaplugin.get('plugin'), {
   field: 'profile.picture',
   mediaType: 'image',
   single: true,
@@ -97,8 +96,8 @@ AbstractUserSchema.plugin(mediaplugin.plugin, {
   },
   queue: queue,
   aws: {
-      s3: {
-        buckets: ['develop.media.batman', 'develop.media.superman']
+     "s3": {
+        "buckets": ["develop.media.batman.bilgow.com", "develop.media.superman.bilgow.com"]
       }
     }
 });

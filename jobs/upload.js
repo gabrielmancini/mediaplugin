@@ -1,17 +1,16 @@
-  var mongoose = require('mongoose'),
-      url = require('url'),
+  var url = require('url'),
       fs = require('fs'),
       path = require('path'),
       mime = require('mime'),
       AWS = (['test', 'ci'].indexOf(process.env.NODE_ENV) >=0)? require('mock-aws-s3') : require('aws-sdk'),
       async = require('async'),
-      Media = require('../').model,
       _ = require('lodash'),
       s3 = (['test', 'ci'].indexOf(process.env.NODE_ENV) >=0)? { client: new AWS.S3() } : new AWS.S3();
 
 //  temp.track();
 
   function sendFile(job, options, suffixName, done) {
+
     var obj = options.obj;
     var media = options.media;
 
@@ -53,7 +52,6 @@
           Body: buf,
           ContentType: mime.lookup(media.mime)
         };
-
         s3.client.putObject(data, function (err, res) {
           job.progress(options.totalSteps - options.pending--, options.totalSteps);
           return cb(err);
@@ -70,6 +68,10 @@
    * Process recover password
    */
   function uploadMedia(job, done) {
+    var MediaPlugin = require('../');
+
+    var mongoose = MediaPlugin.getMongoose(),
+        Media = MediaPlugin.get('model');
 
     var options = job.data || {};
     options = _.merge({
@@ -90,7 +92,6 @@
 
     async.series({
       findById: function (cb) {
-
         mongoose.model(options.parent.modelName).findById(
           options.parent.value._id,
           function (err, _obj) {
