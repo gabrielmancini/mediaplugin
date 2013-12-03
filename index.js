@@ -15,6 +15,7 @@ var init = function (options) {
   module.exports.factory = require('./lib/ProcessFactory');
 
   module.exports.handler = require('./lib/handler');
+
 }
 
 module.exports = {
@@ -24,12 +25,9 @@ module.exports = {
       throw new Error('get must be specified [ plugin | model | jobs | factory | hundler ] ')
     }
     return module.exports[idx];
-
   },
   getMongoose: function () {
     return mongoose;
   },
   getServers: function() {},
 };
-
-
