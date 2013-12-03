@@ -180,9 +180,6 @@ module.exports = exports = function (mongoose) {
     return queue;
   }
 
-
-  console.log('adicionou', Object.keys(mongoose.models));
-
   return mongoose.model('Media', MediaSchema);
 
 }
