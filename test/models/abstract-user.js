@@ -97,7 +97,7 @@ AbstractUserSchema.plugin(mediaplugin.get('plugin'), {
   queue: queue,
   aws: {
      "s3": {
-        "buckets": ["develop.media.batman.bilgow.com", "develop.media.superman.bilgow.com"]
+        "buckets": ["develop.media.batman", "develop.media.superman"]
       }
     }
 });
