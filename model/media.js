@@ -5,7 +5,7 @@ var async = require('async'),
   url = require('url'),
   path = require('path');
 
-  _.str = require('underscore.string');
+_.str = require('underscore.string');
 
 module.exports = exports = function (mongoose) {
 
@@ -76,7 +76,7 @@ module.exports = exports = function (mongoose) {
   MediaSchema.virtual('url.fullpath').get(function () {
     var path = [this.url.path, this.url.name].join('/');
     var serverUrl = hosts[this.url.host];
-    if (typeof serverUrl == 'undefined') {
+    if (typeof serverUrl === 'undefined') {
       return ['', path].join('/');
     }
     return [serverUrl, path].join('/');
@@ -88,25 +88,25 @@ module.exports = exports = function (mongoose) {
   MediaSchema.methods.getMediaTypeOptions = function() {
     var Media = mongoose.model('Media');
     return Media.mediaTypes[this.mediaType].options;
-  }
+  };
 
   MediaSchema.methods.getSuffixName = function(suffixType) {
     var suffix = this.getMediaTypeOptions()[suffixType].nameSuffix || '';
     return [this.url.name+suffix, this.url.ext].join('.');
-  }
+  };
 
   MediaSchema.methods.getQueue = function() {
     return this._queue;
-  }
+  };
 
   MediaSchema.methods.setQueue = function(queue, jobId) {
     this._queue = queue;
     this._jobId = jobId;
-  }
+  };
 
   MediaSchema.methods.getOriginalUrl = function() {
     return [this.original.host, this.original.path, this.original.name].join('/');
-  }
+  };
 
   MediaSchema.methods.setOriginalUrl = function(_url) {
 
@@ -115,7 +115,7 @@ module.exports = exports = function (mongoose) {
     this.original.name = path.basename(parsedUrl.path);
     this.original.path = path.dirname(parsedUrl.path);
 
-  }
+  };
 
   MediaSchema.methods.setOptions = function(options) {
 
@@ -133,13 +133,10 @@ module.exports = exports = function (mongoose) {
       }
     };
     return options;
-  }
+  };
 
   MediaSchema.methods.process = function(options, done) {
-    var MediaPlugin = require('../');
-    var MessageQueue = MediaPlugin.getQueue();
-
-    //var MessageQueue = this.parent().getMediaQueue();
+    var MessageQueue = this.parent().getMediaQueue();
     var queue = new MessageQueue();
 
     options = this.setOptions(options);
@@ -150,13 +147,10 @@ module.exports = exports = function (mongoose) {
       }
     });
     return queue;
-  }
+  };
 
   MediaSchema.methods.download = function(url, options, done) {
-    var MediaPlugin = require('../');
-    var MessageQueue = MediaPlugin.getQueue();
-
-    //var MessageQueue = this.parent().getMediaQueue();
+    var MessageQueue = this.parent().getMediaQueue();
     var queue = new MessageQueue();
 
     options = this.setOptions(options);
@@ -169,13 +163,10 @@ module.exports = exports = function (mongoose) {
     });
 
     return queue;
-  }
+  };
 
   MediaSchema.methods.upload = function(aws, options, done) {
-    var MediaPlugin = require('../');
-    var MessageQueue = MediaPlugin.getQueue();
-
-    //var MessageQueue = this.parent().getMediaQueue();
+    var MessageQueue = this.parent().getMediaQueue();
     var queue = new MessageQueue();
 
     options = this.setOptions(options);
@@ -187,7 +178,7 @@ module.exports = exports = function (mongoose) {
       }
     });
     return queue;
-  }
+  };
 
   return mongoose.model('Media', MediaSchema);
 

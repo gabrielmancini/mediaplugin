@@ -72,7 +72,7 @@ describe('Media <Unit Test>: ', function () {
       },
     }, function (err) {
       done(err);
-    })
+    });
 
   });
 
