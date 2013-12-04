@@ -1,10 +1,14 @@
-var mongoose;
+var mongoose, queue;
 
 var init = function (options) {
   if (!options.mongoose) {
     throw new Error('Mongoose option not found');
   }
   mongoose = options.mongoose;
+
+  if (options.queue) {
+    queue = options.queue;
+  }
 
   module.exports.plugin = require('./plugin')(mongoose);
 
@@ -25,6 +29,9 @@ module.exports = {
       throw new Error('get must be specified [ plugin | model | jobs | factory | hundler ] ')
     }
     return module.exports[idx];
+  },
+  getQueue: function () {
+    return queue;
   },
   getMongoose: function () {
     return mongoose;
