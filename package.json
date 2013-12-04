@@ -1,6 +1,6 @@
 {
   "name": "mediaplugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "media process",
   "main": "index.js",
   "engines": {
