@@ -93,13 +93,7 @@ AbstractUserSchema.plugin(mediaplugin.get('plugin'), {
   output: ['original', 'thumbnail'],
   processOptions: {
     normal: { width: 800 }
-  },
-  queue: queue,
-  aws: {
-     "s3": {
-        "buckets": ["develop.media.batman", "develop.media.superman"]
-      }
-    }
+  }
 });
 
 //AbstractUserSchema.plugin(mediaplugin.plugin, { field: 'profile.cover', type: 'image', single: true } );

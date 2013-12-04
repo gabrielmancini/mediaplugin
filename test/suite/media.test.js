@@ -14,7 +14,7 @@ var
   extend = require('mongoose-schema-extend');
 
 describe('Media <Unit Test>: ', function () {
-  
+
   var User,
     Media,
     Jobs,
@@ -35,7 +35,13 @@ describe('Media <Unit Test>: ', function () {
   before(function (done) {
 
     MediaPlugin.init({
-      mongoose: mongoose
+      mongoose: mongoose,
+      queue: queue,
+      aws: {
+        s3: {
+          buckets: ['develop.media.batman', 'develop.media.superman']
+        }
+      }
     });
 
     Media = MediaPlugin.get('model');

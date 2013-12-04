@@ -136,7 +136,10 @@ module.exports = exports = function (mongoose) {
   }
 
   MediaSchema.methods.process = function(options, done) {
-    var MessageQueue = this.parent().getMediaQueue();
+    var MediaPlugin = require('../');
+    var MessageQueue = MediaPlugin.getQueue();
+
+    //var MessageQueue = this.parent().getMediaQueue();
     var queue = new MessageQueue();
 
     options = this.setOptions(options);
@@ -150,7 +153,10 @@ module.exports = exports = function (mongoose) {
   }
 
   MediaSchema.methods.download = function(url, options, done) {
-    var MessageQueue = this.parent().getMediaQueue();
+    var MediaPlugin = require('../');
+    var MessageQueue = MediaPlugin.getQueue();
+
+    //var MessageQueue = this.parent().getMediaQueue();
     var queue = new MessageQueue();
 
     options = this.setOptions(options);
@@ -166,7 +172,10 @@ module.exports = exports = function (mongoose) {
   }
 
   MediaSchema.methods.upload = function(aws, options, done) {
-    var MessageQueue = this.parent().getMediaQueue();
+    var MediaPlugin = require('../');
+    var MessageQueue = MediaPlugin.getQueue();
+
+    //var MessageQueue = this.parent().getMediaQueue();
     var queue = new MessageQueue();
 
     options = this.setOptions(options);
