@@ -19,7 +19,9 @@ module.exports = exports = function (mongoose) {
       }
     }, optionsPlugin || {});
 
-    var Media = require('../').get('model'),
+    var mediaPlugin = require('../');
+
+    var Media = mediaPlugin.get('model'),
         MediaSchema = Media.schema;
 
 
@@ -48,7 +50,7 @@ module.exports = exports = function (mongoose) {
     schema.add(definition, prefix);
 
     schema.methods.getMediaQueue = function () {
-      return optionsPlugin.queue;
+      return optionsPlugin.queue || mediaPlugin.getQueue();
     };
 
     // schema.methods.setConfig = function (config) {
@@ -141,9 +143,7 @@ module.exports = exports = function (mongoose) {
               queue.getByJobId(jobId, function (err, job) {
 
                 if (['complete', 'failed'].indexOf(job._state) !== -1) {
-                  //obj.customGetMethod
                   defered.resolve(mediaId);
-                  //completeHandler(job, media._id);
                 } else {
 
                   job.subscribe()
