@@ -5,8 +5,14 @@ var init = function (options) {
     throw new Error('Mongoose option not found');
   }
   mongoose = options.mongoose;
-  queue = options.queue;
-  s3 = options.s3;
+
+  if (options.queue) {
+    queue = options.queue;
+  }
+
+  if (options.s3) {
+    s3 = options.s3;
+  }
 
   module.exports.plugin = require('./plugin')(mongoose);
 
@@ -18,13 +24,13 @@ var init = function (options) {
 
   module.exports.handler = require('./lib/handler');
 
-}
+};
 
 module.exports = {
   init: init,
   get: function (idx) {
     if (!idx) {
-      throw new Error('get must be specified [ plugin | model | jobs | factory | hundler ] ')
+      throw new Error('get must be specified [ plugin | model | jobs | factory | hundler ] ');
     }
     return module.exports[idx];
   },
@@ -37,5 +43,4 @@ module.exports = {
   getQueue: function () {
     return queue;
   },
-  //getServers: function() {},
 };
