@@ -11,12 +11,7 @@ module.exports = exports = function (mongoose) {
       field : '',
       genMethod: true,
       single: false,
-      output: 'all',
-      aws: {
-        s3: {
-          buckets: []
-        }
-      }
+      output: 'all'
     }, optionsPlugin || {});
 
     var mediaPlugin = require('../');
@@ -24,6 +19,11 @@ module.exports = exports = function (mongoose) {
     var Media = mediaPlugin.get('model'),
         MediaSchema = Media.schema;
 
+    optionsPlugin.aws = mediaPlugin.getAws() || {
+        s3: {
+          buckets: []
+        }
+      };
 
     var customGetMethod = _.str.camelize('get ' + optionsPlugin.field.split('.').join(' '));
     var customSetMethod = _.str.camelize('set ' + optionsPlugin.field.split('.').join(' '));

@@ -20,7 +20,6 @@
 
     var options = job.data || {};
 
-
     var processTotalSteps = 15;
     var downloadTotalSteps = 16;
     var uploadTotalSteps = 2;
@@ -50,7 +49,6 @@
       totalSteps: 0,
       pending: -1
     }, options);
-
 
 
     var findMediaByIdParent = function (cb) {

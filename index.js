@@ -1,5 +1,5 @@
 
-var mongoose, queue, s3;
+var mongoose, queue, aws;
 
 var init = function (options) {
   if (!options.mongoose) {
@@ -11,8 +11,8 @@ var init = function (options) {
     queue = options.queue;
   }
 
-  if (options.s3) {
-    s3 = options.s3;
+  if (options.aws) {
+    aws = options.aws;
   }
 
   module.exports.plugin = require('./plugin')(mongoose);
@@ -38,8 +38,8 @@ module.exports = {
   getMongoose: function () {
     return mongoose;
   },
-  getS3: function () {
-    return s3;
+  getAws: function () {
+    return aws;
   },
   getQueue: function () {
     return queue;
