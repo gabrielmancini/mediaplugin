@@ -1,5 +1,7 @@
 # Media Plugin
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/gabrielmancini/mediaplugin.svg)](https://greenkeeper.io/)
+
 Application Programming Interface.
 
 ## Requirements
